@@ -55,20 +55,30 @@ st.markdown(
     <style>
     .stApp { background: #ffffff; color: #1f2937; }
     section.main .block-container { padding: 2rem 2rem 3rem; max-width: 1500px; }
-    .stApp [data-testid="stWidgetLabel"],
-    .stApp [data-testid="stWidgetLabel"] *,
-    .stApp [data-testid="stMarkdownContainer"],
-    .stApp [data-testid="stCaptionContainer"] {
+    .stApp [data-testid="stMain"] [data-testid="stWidgetLabel"],
+    .stApp [data-testid="stMain"] [data-testid="stWidgetLabel"] *,
+    .stApp [data-testid="stMain"] [data-testid="stMarkdownContainer"],
+    .stApp [data-testid="stMain"] [data-testid="stCaptionContainer"] {
         color: #243449 !important;
     }
-    .stApp [data-testid="stCaptionContainer"] { color: #526174 !important; }
-    .stApp [data-testid="stTextInput"] input,
-    .stApp [data-testid="stNumberInput"] input,
-    .stApp [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+    .stApp [data-testid="stMain"] [data-testid="stCaptionContainer"] { color: #526174 !important; }
+    .stApp [data-testid="stMain"] [data-testid="stTextInput"] input,
+    .stApp [data-testid="stMain"] [data-testid="stNumberInput"] input,
+    .stApp [data-testid="stMain"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
         background: #ffffff !important;
         color: #1f2937 !important;
         border-color: #cbd5e1 !important;
         -webkit-text-fill-color: #1f2937 !important;
+    }
+    .stApp [data-testid="stAlert"] {
+        background-color: #10243a !important;
+        border-color: #10243a !important;
+    }
+    .stApp [data-testid="stAlert"] *,
+    .stApp [data-testid="stAlert"] [data-testid="stMarkdownContainer"],
+    .stApp [data-testid="stAlert"] [data-testid="stMarkdownContainer"] * {
+        color: #f1f5f9 !important;
+        -webkit-text-fill-color: #f1f5f9 !important;
     }
     [data-testid="stSidebar"] {
         background: #10243a;
@@ -86,6 +96,20 @@ st.markdown(
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
         color: #cbd5e1 !important;
     }
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] *,
+    [data-testid="stSidebar"] [data-testid="stRadio"] label,
+    [data-testid="stSidebar"] [data-testid="stRadio"] label *,
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] *,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        color: #f1f5f9 !important;
+        -webkit-text-fill-color: #f1f5f9 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] *,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        color: #cbd5e1 !important;
+        -webkit-text-fill-color: #cbd5e1 !important;
+    }
     [data-testid="stSidebar"] [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
         background: #ffffff !important;
         color: #1f2937 !important;
@@ -101,6 +125,10 @@ st.markdown(
     }
     [data-testid="stMetricLabel"] { color: #475569; }
     [data-testid="stMetricValue"] { color: #172b43; }
+    .stApp [data-testid="stDataFrame"] {
+        color: #f1f5f9 !important;
+        background-color: #1e293b !important;
+    }
     div[data-testid="stForm"] {
         background: #ffffff;
         border: 1px solid #e2e8f0;
@@ -202,6 +230,35 @@ def grouped_subscription_rate(data, column, order=None):
         grouped[column] = pd.Categorical(grouped[column], order, ordered=True)
         return grouped.sort_values(column)
     return grouped.sort_values("rate", ascending=False)
+
+
+def style_dataframe(data):
+    return data.style.set_properties(
+        **{
+            "background-color": "#1e293b",
+            "color": "#f1f5f9",
+            "border-color": "#475569",
+        }
+    ).set_table_styles(
+        [
+            {
+                "selector": "th",
+                "props": [
+                    ("background-color", "#10243a"),
+                    ("color", "#f1f5f9"),
+                    ("border-color", "#475569"),
+                ],
+            },
+            {
+                "selector": "td",
+                "props": [
+                    ("background-color", "#1e293b"),
+                    ("color", "#f1f5f9"),
+                    ("border-color", "#475569"),
+                ],
+            },
+        ]
+    )
 
 
 def render_kpi_cards(data):
@@ -502,14 +559,16 @@ def render_prediction(data, model, columns):
             )
         with st.expander("Review the submitted profile"):
             st.dataframe(
-                pd.DataFrame([values]).rename(
-                    columns={
+                style_dataframe(
+                    pd.DataFrame([values]).rename(
+                        columns={
                         "emp.var.rate": "employment variation rate",
                         "cons.price.idx": "consumer price index",
                         "cons.conf.idx": "consumer confidence index",
                         "euribor3m": "Euribor 3-month rate",
                         "nr.employed": "number employed",
-                    }
+                        }
+                    )
                 ),
                 use_container_width=True,
                 hide_index=True,
@@ -597,7 +656,7 @@ def render_explorer(data):
         }
     )
     st.dataframe(
-        display_data,
+        style_dataframe(display_data),
         use_container_width=True,
         hide_index=True,
         height=520,
